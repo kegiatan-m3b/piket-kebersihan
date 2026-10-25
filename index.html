@@ -79,8 +79,8 @@
             </div>
         </header>
 
-        <main id="tab-home" class="tab-content active p-6 space-y-6">
-            <div id="gtkView" class="space-y-6 hidden">
+        <main id="tab-home" class="tab-content p-6 space-y-6">
+            <div id="gtkView" class="space-y-6">
                 <div class="bg-white rounded-[2.5rem] p-2 shadow-sm border border-gray-100 overflow-hidden">
                     <div class="map-wrapper">
                         <div id="user-map"></div>
@@ -112,6 +112,61 @@
                 <div>
                     <h3 class="font-black text-sm uppercase tracking-wider text-gray-400 mb-4 px-2">Aktivitas Terakhir Anda</h3>
                     <div id="userHistory" class="space-y-3"></div>
+                </div>
+            </div>
+        </main>
+
+        <!-- MENU REKAP HARIAN (UNTUK PIMPINAN & ADMIN) -->
+        <main id="tab-rekap" class="tab-content p-6 space-y-6 pb-24">
+            <div class="flex justify-between items-center">
+                <h2 class="text-xl font-black text-gray-900">Monitoring Jadwal</h2>
+                <input type="date" id="rekapDate" class="bg-gray-100 p-2 rounded-xl text-xs font-bold outline-none text-gray-700" onchange="loadRekapHarian()">
+            </div>
+            
+            <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
+                <div class="flex justify-between items-center bg-emerald-50 p-4 rounded-2xl mb-4 border border-emerald-100">
+                    <div>
+                        <span class="text-[10px] font-bold text-emerald-700 uppercase tracking-wider block">Hari Piket:</span>
+                        <span id="rekapHari" class="text-lg font-black text-emerald-600">...</span>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-[10px] font-bold text-emerald-700 uppercase tracking-wider block">Total Hadir:</span>
+                        <span id="rekapTotal" class="text-lg font-black text-emerald-600">0 / 0</span>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <h4 class="text-xs font-bold text-emerald-600 mb-2 flex items-center gap-1"><i class="fas fa-check-circle"></i> Sudah Hadir</h4>
+                    <div class="overflow-x-auto border border-gray-100 rounded-2xl">
+                        <table class="w-full text-xs">
+                            <thead>
+                                <tr class="bg-emerald-50 text-emerald-700 text-[10px] uppercase tracking-wider">
+                                    <th class="py-3 px-3 text-left font-bold">Nama Petugas</th>
+                                    <th class="py-3 px-3 text-left font-bold">Shift & Waktu</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rekapListHadir">
+                                <tr><td colspan="2" class="py-4 text-center text-gray-400">Pilih tanggal...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-xs font-bold text-red-500 mb-2 flex items-center gap-1"><i class="fas fa-times-circle"></i> Belum / Tidak Hadir</h4>
+                    <div class="overflow-x-auto border border-gray-100 rounded-2xl">
+                        <table class="w-full text-xs">
+                            <thead>
+                                <tr class="bg-red-50 text-red-700 text-[10px] uppercase tracking-wider">
+                                    <th class="py-3 px-3 text-left font-bold">Nama Petugas</th>
+                                    <th class="py-3 px-3 text-center font-bold">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rekapListBelum">
+                                <tr><td colspan="2" class="py-4 text-center text-gray-400">Pilih tanggal...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </main>
@@ -169,7 +224,7 @@
 
         <main id="tab-pegawai" class="tab-content p-6 space-y-6 pb-24">
             <div class="flex justify-between items-center">
-                <h2 class="text-2xl font-black text-gray-900">Manajemen Petugas</h2>
+                <h2 class="text-2xl font-black text-gray-900">Data Petugas</h2>
                 <button onclick="openUserModal()" class="bg-emerald-600 text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-lg active:scale-95 transition-all"><i class="fas fa-plus mr-1"></i> Tambah</button>
             </div>
             <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
@@ -192,8 +247,11 @@
         </main>
 
         <nav class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t px-3 py-3 flex justify-around items-center z-[100]">
-            <button onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center gap-1 text-emerald-600 transition-all">
+            <button onclick="switchTab('home')" id="nav-home" class="hidden flex flex-col items-center gap-1 text-emerald-600 transition-all">
                 <i class="fas fa-house text-lg"></i><span class="text-[8px] font-bold uppercase">Beranda</span>
+            </button>
+            <button onclick="switchTab('rekap')" id="nav-rekap" class="hidden flex flex-col items-center gap-1 text-gray-400 transition-all">
+                <i class="fas fa-clipboard-list text-lg"></i><span class="text-[8px] font-bold uppercase">Rekap Harian</span>
             </button>
             <button onclick="switchTab('setting')" id="nav-setting" class="hidden flex flex-col items-center gap-1 text-gray-400 transition-all">
                 <i class="fas fa-gear text-lg"></i><span class="text-[8px] font-bold uppercase">Setting Jam</span>
@@ -222,9 +280,7 @@
             <h3 id="modalTitle" class="text-xl font-black text-gray-900">Data Petugas</h3>
             <input type="hidden" id="editId">
             <input type="text" id="uNama" placeholder="Nama Lengkap" class="w-full p-4 bg-gray-50 rounded-2xl outline-none ring-1 ring-gray-100">
-            <!-- INPUT TEXT UNTUK HARI GANDA (Pisahkan dengan koma) -->
             <input type="text" id="uHari" placeholder="Hari (Contoh: SENIN, SELASA)" class="w-full p-4 bg-gray-50 rounded-2xl outline-none ring-1 ring-gray-100 font-bold text-gray-600 uppercase">
-            
             <input type="tel" id="uPhone" placeholder="No HP / Password Login" class="w-full p-4 bg-gray-50 rounded-2xl outline-none ring-1 ring-gray-100">
             <select id="uRole" class="w-full p-4 bg-gray-50 rounded-2xl outline-none ring-1 ring-gray-100 font-bold text-gray-600">
                 <option value="GTK">Petugas Kebersihan</option>
@@ -247,7 +303,7 @@
         // ========================================================
         // 1. SETTING URL GOOGLE APPS SCRIPT ANDA DI SINI
         // ========================================================
-        var GAS_URL = "https://script.google.com/macros/s/AKfycbxBRIkueaxvbbsxybT47Fk6Fe8PoLkKQQMflW7gcsPu7p2ITPBCQyGHVjUAPNYV03sd/exec";
+        var GAS_URL = "https://script.google.com/macros/s/AKfycby08IWhAwuaKqba_bkZig_-exW10gANWpQSv5h8i_2CmhtUsjL459dMig7GnbS5lkQf/exec";
         
         function callGAS(action, data, onSuccess, onError) {
             fetch(GAS_URL, {
@@ -319,7 +375,7 @@
             var boxName = document.getElementById('boxGtkName');
             var inputPass = document.getElementById('loginPass');
             if (role === 'GTK') { boxName.style.display = 'block'; inputPass.placeholder = 'Masukkan No HP Anda'; } 
-            else { boxName.style.display = 'none'; inputPass.placeholder = 'Masukkan Password Admin'; }
+            else { boxName.style.display = 'none'; inputPass.placeholder = 'Masukkan Password Admin / Pimpinan'; }
         }
 
         function handleLogin() {
@@ -353,17 +409,25 @@
             document.getElementById('app').classList.remove('hidden');
             document.getElementById('userName').innerText = user.nama;
             
-            if (user.role === 'admin' || user.role === 'pimpinan') {
+            if (user.role === 'admin') {
+                document.getElementById('nav-rekap').classList.remove('hidden');
                 document.getElementById('nav-setting').classList.remove('hidden');
                 document.getElementById('nav-pegawai').classList.remove('hidden');
                 document.getElementById('appTitleGreeting').innerText = "Dashboard Admin";
                 document.getElementById('gpsStatus').style.display = 'none';
-                switchTab('setting');
+                switchTab('rekap');
+            } else if (user.role === 'pimpinan') {
+                document.getElementById('nav-rekap').classList.remove('hidden');
+                document.getElementById('appTitleGreeting').innerText = "Monitoring Pimpinan";
+                document.getElementById('gpsStatus').style.display = 'none';
+                switchTab('rekap'); // Langsung buka menu rekap dan sembunyikan home, setting, pegawai
             } else {
+                document.getElementById('nav-home').classList.remove('hidden');
                 document.getElementById('gtkView').classList.remove('hidden');
                 initGPS();
+                refreshData();
+                switchTab('home');
             }
-            refreshData();
         }
 
         function switchTab(id) {
@@ -373,14 +437,70 @@
             
             var btns = document.querySelectorAll('nav button');
             for(var j=0; j<btns.length; j++) btns[j].classList.replace('text-emerald-600', 'text-gray-400');
-            document.getElementById('nav-' + id).classList.replace('text-gray-400', 'text-emerald-600');
+            if (document.getElementById('nav-' + id)) {
+                document.getElementById('nav-' + id).classList.replace('text-gray-400', 'text-emerald-600');
+            }
 
             if (id === 'home' && user.role === 'GTK') { initUserMap(); } 
+            else if (id === 'rekap') { loadRekapHarian(); }
             else if (id === 'pegawai') { loadPegawaiData(); }
             else if (id === 'setting') { refreshData(); }
         }
 
-        /* LOGIKA LEAFLET & GPS (DISEDERHANAKAN) */
+        // ==========================================
+        // DATA REKAPITULASI HARIAN (PIMPINAN & ADMIN)
+        // ==========================================
+        function loadRekapHarian() {
+            var rDate = document.getElementById('rekapDate').value;
+            if (!rDate) {
+                var tzoffset = (new Date()).getTimezoneOffset() * 60000;
+                rDate = (new Date(Date.now() - tzoffset)).toISOString().split('T')[0];
+                document.getElementById('rekapDate').value = rDate;
+            }
+            
+            document.getElementById('rekapListHadir').innerHTML = '<tr><td colspan="2" class="py-8 text-center text-emerald-600"><i class="fas fa-spinner fa-spin text-2xl mb-2"></i><br>Memuat data absen...</td></tr>';
+            document.getElementById('rekapListBelum').innerHTML = '<tr><td colspan="2" class="py-8 text-center text-emerald-600"><i class="fas fa-spinner fa-spin text-2xl mb-2"></i><br>Memuat jadwal...</td></tr>';
+            
+            callGAS('getRekapHarian', { tanggal: rDate }, function(res) {
+                if(res.success) {
+                    document.getElementById('rekapHari').innerText = res.hari + ', ' + res.tanggal;
+                    document.getElementById('rekapTotal').innerText = res.hadir.length + " / " + res.totalJadwal;
+                    
+                    // Render Tabel Hadir
+                    if(res.hadir.length > 0) {
+                        var hHtml = "";
+                        res.hadir.forEach(function(h) {
+                            var logText = h.logs.map(function(l) {
+                                return '<div class="inline-flex items-center bg-emerald-50 border border-emerald-100 rounded-lg px-2 py-1 mb-1 mr-1">' +
+                                       '<span class="text-emerald-700 text-[9px] font-black uppercase tracking-wider mr-2">' + l.shift + ' (' + l.jam + ')</span>' + 
+                                       '<button onclick="openImageModal(\''+l.foto+'\')" class="text-blue-500 hover:text-blue-700 font-black text-[10px] active:scale-95"><i class="fas fa-image"></i> Cek Foto</button></div>';
+                            }).join("");
+                            hHtml += '<tr class="border-b border-gray-100 hover:bg-gray-50"><td class="py-3 px-3 font-bold text-gray-900">' + h.nama + '</td><td class="py-3 px-3">' + logText + '</td></tr>';
+                        });
+                        document.getElementById('rekapListHadir').innerHTML = hHtml;
+                    } else {
+                        document.getElementById('rekapListHadir').innerHTML = '<tr><td colspan="2" class="py-6 text-center text-gray-400 font-bold">Belum ada petugas yang hadir</td></tr>';
+                    }
+                    
+                    // Render Tabel Belum Hadir
+                    if(res.belum.length > 0) {
+                        var bHtml = "";
+                        res.belum.forEach(function(nama) {
+                            bHtml += '<tr class="border-b border-gray-100"><td class="py-3 px-3 font-bold text-gray-900">' + nama + '</td><td class="py-3 px-3 text-center"><span class="px-3 py-1 bg-red-50 text-red-600 border border-red-100 rounded-lg text-[9px] font-black uppercase">Belum Hadir</span></td></tr>';
+                        });
+                        document.getElementById('rekapListBelum').innerHTML = bHtml;
+                    } else {
+                        if(res.totalJadwal === 0) {
+                            document.getElementById('rekapListBelum').innerHTML = '<tr><td colspan="2" class="py-6 text-center text-gray-400 font-bold">Tidak ada jadwal piket petugas hari ini.</td></tr>';
+                        } else {
+                            document.getElementById('rekapListBelum').innerHTML = '<tr><td colspan="2" class="py-6 text-center text-emerald-600 font-bold">Lengkap! Semua petugas sesuai jadwal sudah hadir.</td></tr>';
+                        }
+                    }
+                }
+            });
+        }
+
+        /* LOGIKA LEAFLET & GPS */
         function initUserMap() {
             var mc = document.getElementById('user-map');
             if(!mc || mc.offsetWidth === 0) return; 
@@ -427,9 +547,6 @@
             }
         }
 
-        // ==========================================
-        // FITUR UTAMA: 3 SHIFT LOGIC & REFRESH DATA
-        // ==========================================
         function refreshData() {
             if (!user) return;
             callGAS('getDashboardData', { userId: user.id, role: user.role }, function(res) {
@@ -451,7 +568,7 @@
                 }
                 
                 if (user.role === 'GTK') {
-                    globalActiveShift = res.currentShift; // PAGI, SIANG, SORE, atau TUTUP
+                    globalActiveShift = res.currentShift;
                     var sStatus = document.getElementById('shiftStatus');
                     var btnMasuk = document.getElementById('btnAbsenMasuk');
                     
@@ -476,7 +593,6 @@
                         }
                     }
 
-                    // Tampilkan history
                     var hDiv = document.getElementById('userHistory');
                     if (res.history && res.history.length > 0) {
                         var hHtml = "";
@@ -488,7 +604,7 @@
                                      '<h4 class="font-bold text-gray-900">Shift ' + h.shift + '</h4></div>' + link + '</div>';
                         }
                         hDiv.innerHTML = hHtml;
-                    } else { hDiv.innerHTML = '<p class="text-center text-xs py-4 text-gray-400">Belum ada riwayat</p>'; }
+                    } else { hDiv.innerHTML = '<p class="text-center text-xs py-4 text-gray-400">Belum ada riwayat absen hari ini</p>'; }
                 }
                 updateGPSUI();
             });
@@ -528,7 +644,6 @@
                         var now = new Date(); var days = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
                         var addr = (office.gpsReq === 'ON') ? ("📍 Lat: " + currentLoc.lat.toFixed(5) + " | Lng: " + currentLoc.lng.toFixed(5)) : "📍 Absensi Bebas Lokasi (GPS OFF)";
                         
-                        // TEXT PADA FOTO 
                         ctx.fillText("⭐ Absensi Piket Kebersihan - " + globalActiveShift, 15, can.height - 65);
                         ctx.fillText("🕒 " + days[now.getDay()] + ", " + now.toLocaleDateString('id-ID') + " - " + now.toLocaleTimeString('id-ID'), 15, can.height - 40);
                         ctx.fillText(addr, 15, can.height - 15);
@@ -536,7 +651,6 @@
                         var dataUrl = can.toDataURL('image/jpeg', 0.80);
                         showToast("Mengirim foto absensi Shift " + globalActiveShift + "...");
                         
-                        // Kirim data absensi beserta informasi SHIFT yang aktif
                         callGAS('submitAttendance', { shift: globalActiveShift, lat: currentLoc.lat, lng: currentLoc.lng, userId: user.id, selfieData: dataUrl }, function(res) {
                             showToast(res.message); refreshData();
                         }, function() { showToast("Gagal mengirim absensi."); });
